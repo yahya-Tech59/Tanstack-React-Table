@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,24 +7,42 @@ import {
   getSortedRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-import dataJson from "./data.json";
-import { columns } from "./Columns";
+import axios from "axios";
+// import { columns } from "./Columns";
+import { columns } from "./PostColumn";
 
 export const BasicTable = () => {
+  const [ArrayItems, setArrayItems] = useState([]);
+
   const [sorting, setsorting] = useState([]);
   const [filter, setfilter] = useState("");
-  const data = useMemo(() => dataJson, []);
+
+  const data = async () => {
+    try {
+      const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
+      setArrayItems(res.data);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    data();
+  }, []);
 
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting: sorting,
-      globalFilter: filter,
+      globalFilter: filter, // useEffect(() => {
+      //   data();
+      // }, []);
     },
     onSortingChange: setsorting,
     onGlobalFilterChange: setfilter,
